@@ -39,7 +39,7 @@ link:
 
 .PHONY:clean
 clean:
-	$(RM) $(S_OBJECT) $(C_OBJECTS) TestOS_kernel
+	$(RM) $(S_OBJECTS) $(C_OBJECTS) TestOS_kernel
 
 .PHONY:update_image
 update_image:
