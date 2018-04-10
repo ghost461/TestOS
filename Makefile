@@ -58,10 +58,17 @@ qemu:
 
 .PHONY:bochs
 bochs:
-	bochs -f tools/bochsrc.txt
+	bochs -f scripts/bochsrc.txt
 
 .PHONY:debug
 debug:
+	# 参数解释:
+	# -fda grub.img -boot a 是指定启动的镜像
+	# -s 是qemu启动时开启1234端口并等待gdb连接
+	# -S 是启动时不自动开始运行，等待调试器执行命令
+	# GDB启动后的初始化命令放在scripts/gdbinit中
+	# 初始化命令：加载待调试文件的符号信息
+	#             在kern_entry函数下断点并执行到断点处
 	qemu -S -s -fda grub.img -boot a &
 	sleep 1
-	cgdb -x tools/gdbinit
+	cgdb -x scripts/gdbinit
