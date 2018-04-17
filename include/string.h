@@ -45,7 +45,7 @@ static inline int strcmp(const char *str1, const char *str2)
 }
 
 // 把src指向的字符串复制到dest所指的地址空间内
-char *strcpy(char *dest, const char *src)
+static inline char *strcpy(char *dest, const char *src)
 {
 	char *tmp = dest;
 
@@ -60,7 +60,7 @@ char *strcpy(char *dest, const char *src)
 }
 
 // 把src所指向的字符串添加到dest结尾处
-char *strcat(char *dest, const char *src)
+static inline char *strcat(char *dest, const char *src)
 {
 	char *cp = dest;
 

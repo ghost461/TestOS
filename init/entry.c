@@ -1,11 +1,10 @@
-#include"../include/types.h"
 #include"../include/console.h"
+#include"../include/debug.h"
 
-int kern_entry()
-{
+int kern_entry() {
+	init_debug();
 	console_clear();
-
-	console_write_color("Hello, OS kernel!\n", rc_black, rc_green);
-
+	printk_color(rc_black, rc_green, "Hello, OS kernel!\n");
+	panic("test");
 	return 0;
 }
