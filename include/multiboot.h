@@ -54,8 +54,8 @@ struct multiboot_t {
 	uint32_t mmap_length;
 	uint32_t mmap_addr;
 
-	uint32_t drives_length;        // 指出第一个驱动器结构的物理地址
-	uint32_t drives_addr;          // 指出第一个驱动器这个结构的大小
+	uint32_t drives_length;        // 指出第一个驱动器结构的物理大小
+	uint32_t drives_addr;          // 指出第一个驱动器这个结构的地址
 	uint32_t config_table;         // ROM配置表
 	uint32_t boot_loader_name;     // boot loader的名字
 	uint32_t apm_table;            // APM表
@@ -76,6 +76,7 @@ struct multiboot_t {
 typedef struct mmap_entry_t {
 	uint32_t size;        // 留意size是不含size自身变量的大小
 	uint32_t base_addr_low;
+	uint32_t base_addr_high;
 	uint32_t length_low;
 	uint32_t length_high;
 	uint32_t type;

@@ -9,6 +9,7 @@ SECTIONS
 {
 	/* 段起始位置(1MB) */
 	. = 0x100000;
+	PROVIDE( kern_start = . );
 
 	/* 代码段 */
 	/* 采用4096的页对齐方式 */
@@ -47,6 +48,7 @@ SECTIONS
 		*(.stabstr)
 		. = ALIGN(4096);
 	}
+	PROVIDE( kern_end = . );
 
 	/DISCARD/ : { *(.comment) *(.eh_frame)}
 }
