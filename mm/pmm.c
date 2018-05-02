@@ -20,7 +20,7 @@ void show_memory_map() {
 
 	mmap_entry_t *mmap = (mmap_entry_t *)mmap_addr;
 	for (mmap = (mmap_entry_t *)mmap_addr; (uint32_t)mmap < mmap_addr + mmap_length; mmap++) {
-		printk("base_addr = 0x%x%08x, length = 0x%x%08x, type = 0x%X \n",
+		printk("base_addr = 0x%X%08X, length = 0x%X%08X, type = 0x%X \n",
 				(uint32_t)mmap->base_addr_high, (uint32_t)mmap->base_addr_low,
 				(uint32_t)mmap->length_high, (uint32_t)mmap->length_low,
 				(uint32_t)mmap->type);
