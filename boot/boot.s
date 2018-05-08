@@ -23,12 +23,12 @@ MBOOT_CHECKSUM  equ  -(MBOOT_HEADER_MAGIC+MBOOT_HEADER_FLAGS)
 ; 偏移量    类型    域名        备注
 ;  0        u32     magic       必需
 ;  4        u32     flags       必需
-;  8        u32     checksum       必需
+;  8        u32     checksum    必需
 ; 更多详细说明请参阅 GNU 相关文档
 ; -------------------------------------------------------
 
 [BITS 32]  ;  所有代码以32-bit的方式编译
-section .text  ; 代码段从这里开始
+section .init.text  ; 临时代码段从这里开始
 
 ; 在代码段的起始位置设置符合 Multiboot 规范的标记
 
@@ -37,29 +37,26 @@ dd MBOOT_HEADER_FLAGS  ; GRUB的一些加载时选项，其详细注释在定义
 dd MBOOT_CHECKSUM      ; 检测数值，其含义在定义处
 
 [GLOBAL start]         ; 向外部声明内核代码入口，此处提供该声明给链接器
-[GLOBAL glb_mboot_ptr] ; 向外部声明struct multiboot * 变量
-[EXTERN kern_entry]    ; 声明内核C代码的入口函数
+[GLOBAL mboot_ptr_tmp] ; 全局的 struct multiboot * 变量
+[EXTERN kern_entry]    ; 声明内核 C 代码的入口函数
 
 start:
 	cli                             ; 此时还没有设置好保护模式的中断处理，要关闭中断
 
-	mov esp, STACK_TOP              ; 设置内核栈地址
+	mov [mboot_ptr_tmp], ebx        ; 将 ebx 中存储的指针存入 glb_mboot_ptr 变量
+	mov esp, STACK_TOP              ; 设置内核栈地址，按照 multiboot 规范，当需要使用堆栈时
+	                                ; OS 映像必须自己创建一个
+	and esp, 0FFFFFFF0H             ; 栈地址按照 16 字节对齐
 	mov ebp, 0                      ; 帧指针修改为0
-	and esp, 0FFFFFFF0H             ; 栈地址按照16字节对齐
-	mov [glb_mboot_ptr], ebx        ; 将ebx中存储的指针存入全局变量
+
 	call kern_entry                 ; 调用内核入口函数
-stop:
-	hlt                             ; 停机指令，可以降低CPU功耗
-	jmp stop                        ; 到这里结束，关机什么的没有实现
 
 ; ---------------------------------------------------------------------
 
-section .bss                        ; 未初始化的数据段从这里开始
-stack:
-	resb 32768                      ; 这里作为内核栈
-glb_mboot_ptr:                      ; 全局的multiboot结构体指针
-	resb 4
+section .init.data        ; 开启分页前临时的数据段
+stack:  times 1024 db 0   ; 这里作为临时内核栈
+STACK_TOP equ $-stack-1   ; 内核栈顶,$ 符号指的是当前地址
 
-STACK_TOP equ $-stack-1             ; 内核栈顶，$符指代是当前地址
+mboot_ptr_tmp: dd 0       ; 全局的 multiboot 结构体指针
 
 ; ---------------------------------------------------------------------

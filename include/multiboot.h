@@ -83,6 +83,10 @@ typedef struct mmap_entry_t {
 } __attribute__((packed)) mmap_entry_t;
 
 // 声明全局变量的multiboot_t * 指针
+// 内核未建立分页机制前暂存的指针
+extern multiboot_t *mboot_ptr_tmp;
+
+// 内核页表建立后的指针
 extern multiboot_t *glb_mboot_ptr;
 
 #endif // INCLUDE_MULTIBOOT_H_

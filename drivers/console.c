@@ -1,5 +1,6 @@
-#include"../include/common.h"
-#include"../include/console.h"
+#include"common.h"
+#include"console.h"
+#include"vmm.h"
 
 /*
  * VGA(Video Graphics Array, 视频图形阵列)是使用模拟信号的一种视频传输标准，
@@ -11,7 +12,7 @@
  */
 
 // VGA的显示缓冲的起点是0xB8000
-static uint16_t *video_memory = (uint16_t *)0xB8000;
+static uint16_t *video_memory = (uint16_t *)(0xB8000 + PAGE_OFFSET);
 
 // 屏幕“屏幕”的光标
 static uint8_t cursor_x = 0;
