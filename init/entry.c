@@ -12,6 +12,9 @@
 #include"timer.h"
 #include"pmm.h"
 #include"vmm.h"
+#include"heap.h"
+#include"task.h"
+#include"sched.h"
 
 // 内核初始化函数
 void kern_init();
@@ -20,7 +23,10 @@ void kern_init();
 multiboot_t *glb_mboot_ptr;
 
 // 开启分页机制之后的内核栈
-char kern_stack[STACK_SIZE];
+char kern_stack[STACK_SIZE] __attribute__ ((aligned(16)));
+
+// 内核栈的栈顶
+uint32_t kern_stack_top;
 
 // 内核使用的临时页表和页目录
 // 该地址必须是页对齐的地址，内存0-640KB 肯定是空闲的
@@ -65,6 +71,17 @@ __attribute__((section(".init.text"))) void kern_entry() {
 	kern_init();
 }
 
+int flag = 0;
+
+int thread(void *arg) {
+	while(1) {
+		if (flag == 1) {
+			printk_color(rc_black, rc_green, "B");
+			flag = 0;
+		}
+	}
+}
+
 void kern_init() {
 	init_debug();
 	init_gdt();
@@ -75,18 +92,19 @@ void kern_init() {
 
 	init_timer(200);
 
-	// 开启中断
-	// asm volatile ("sti");
-
 	printk("kernel in memory start: 0x%08X\n", kern_start);
 	printk("kernel in memory end:   0x%08X\n", kern_end);
 	printk("kernel in memory used:   %d KB\n\n", (kern_end - kern_start) / 1024);
 
 	show_memory_map();
+	
 	init_pmm();
+	init_vmm();
+	init_heap();
 
 	printk_color(rc_black, rc_red, "\nThe Count of Physical Memory Page is: %u\n\n", phy_page_count);
 
+	/*
 	uint32_t allc_addr = NULL;
 	printk_color(rc_black, rc_light_brown, "Test Physical Memory Alloc :\n");
 	allc_addr = pmm_alloc_page();
@@ -97,6 +115,23 @@ void kern_init() {
 	printk_color(rc_black, rc_light_brown, "Alloc Phsical Addr: 0x%08X\n", allc_addr);
 	allc_addr = pmm_alloc_page();
 	printk_color(rc_black, rc_light_brown, "Alloc Phsical Addr: 0x%08X\n", allc_addr);
+	*/
+
+	test_heap();
+
+	init_sched();
+
+	kernel_thread(thread, NULL);
+
+	// 开启中断
+	enable_intr();
+
+	while (1) {
+		if (flag == 0) {
+			printk_color(rc_black, rc_red, "A");
+			flag = 1;
+		}
+	}
 
 	while (1) {
 		asm volatile ("hlt");
